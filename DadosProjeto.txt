@@ -1,0 +1,116 @@
+cd C:\xampp\htdocs\biblioteca_rb\backend\
+
+======================================================
+
+/////////////
+Estrutura
+/////////////
+
+autores
+editoras
+livros
+
+(livros podem ter mais de um autor, editora, formato)
+
+categorias
+
+(livros podem ter mais de uma categoria)
+
+país
+usuários
+
+https://pt.wikipedia.org/wiki/International_Standard_Book_Number
+
+ISBN
+título, 
+autor, 
+país, 
+editora
+edição
+
+======================================================
+
+/////////////
+Laravel
+/////////////
+
+# Criar projeto
+$ composer create-project --prefer-dist laravel/laravel backend "7.3.*"
+
+$ composer require laravel/passport
+
+$ migrate ...
+
+$ php artisan passport:install
+
+/////////////
+Configurações
+/////////////
+
+#### Models
+
+Criar pasta Model;
+Criar arquivo app/Console/Commands/ModelMakeCommand.php
+
+Alterar o AppServiceProvider
+
+use App\Console\Commands\ModelMakeCommand;
+
+public function register()
+{
+	$this->app->extend('command.model.make', function ($command, $app) {
+		return new ModelMakeCommand($app['files']);
+	});
+}
+
+Alterar o auth.php
+
+'providers' => [
+	'users' => [
+		'driver' => 'eloquent',
+		'model' => App\Model\User::class, // aqui
+	],
+]
+
+#### Timezone, idioma e cache time
+
+app.php
+
+'timezone' => 'America/Sao_Paulo',
+'locale' => 'pt-br',
+'faker_locale' => 'pt_BR',
+'cache_time' => 60, // cache fixed time in seconds
+
+Adicionar classe de constantes
+
+'aliases' => [ ..., 'Constants' => App\Constants\Constants::class]
+
+#### Passport
+
+auth.php
+
+'guards' => [ ..., 
+	'api' => [
+		'driver' => 'passport', // aqui
+		'provider' => 'users',
+		'hash' => false,
+	],
+]
+======================================================
+
+Comandos:
+
+$ php artisan make:migration create_countries_table --create=countries
+$ php artisan make:migration create_authors_table --create=authors
+$ php artisan make:migration create_categories_table --create=categories
+$ php artisan make:migration create_books_table --create=books
+$ php artisan make:migration create_edition_references_table --create=edition_references
+$ php artisan make:migration create_editions_table --create=editions
+$ php artisan make:migration create_publishers_table --create=publishers
+$ php artisan make:migration create_edition_files_table --create=edition_files
+$ php artisan make:migration create_languages_table --create=languages
+$ php artisan make:migration create_book_authors_table --create=book_authors
+$ php artisan make:migration create_book_categories_table --create=book_categories
+
+
+======================================================
